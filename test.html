@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test</title>
+	<style type="text/css">
+		.events {
+			display: none;
+		}
+
+		th, td {
+			border: solid 1px;
+			padding: 5px;
+		}
+		table {
+			border-collapse: collapse;
+			margin: 10px;
+		}
+		.searchForm {
+			margin-left: 10px;
+		}
+		.searchForm p {
+			display: inline-block;
+			margin-right: 20px;
+		}
+	</style>
+</head>
+<body>
+	<form class="searchForm">
+		<p>Please enter your location here:</p>
+		<label>x:</label><input type="number" name="x" id="x" min="-10" max="10" required>
+		<label>y:</label><input type="number" name="y" id="y" min="-10" max="10" required>
+
+		<button type="submit" class="submit">Search</button>
+	</form>
+	<table class="events">
+		<tr>
+			<th>Event ID</th>
+			<th>Location</th>
+			<th>Distance</th>
+			<th>Ticket price</th>
+		</tr>
+	</table>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var events = seedData();
+
+			function checkRandomNumbers(events, x, y) { //checks for duplicate random seed data.
+				events.forEach(function(event) {
+				 	if(x == event.x && y == event.y) {
+				 		return false
+				 	}
+				});
+
+				return true;
+			}
+
+			function seedData() { //creates seed data.
+				var events = [];
+				var duplicates = false;
+				var x,y;
+				var ranTicketNum = 0;
+				var ticketArray = [];
+
+				for (i = 0; i < 20; i++) {
+					while(!duplicates) { //checks no duplicate events in same location
+						x = Math.round((Math.random()*20)-10);
+						y = Math.round((Math.random()*20)-10);
+
+						if(checkRandomNumbers(events, x, y)) {
+							duplicates = true;
+						}
+					}
+
+					ranTicketNum = Math.round((Math.random()*2));
+
+					if(ranTicketNum) {
+						ticketArray = [];
+						for(j=0;j<ranTicketNum;j++) {
+							ticketArray.push({
+								ticketId: j,
+								price: Math.round((Math.random()*100)+20)
+							});
+						}
+					} else {
+						ticketArray = [];
+					}
+
+					events.push({
+						id: i,
+						x: x,
+						y: y,
+						tickets: ticketArray
+					});
+
+					duplicates = false; //reset value;
+				}
+
+				console.log(events);
+
+				return events;
+			}
+
+			function findEvents() {
+				var x = $("#x").val();
+				var y = $("#y").val();
+				var counter = 0;
+
+				for(i=0;i<events.length;i++) {
+					if(events[i].tickets.length > 0) {
+						manDistance = Math.abs(events[i].x - x) + Math.abs(events[i].y - y);
+				 		events[i].manDistance = manDistance;
+					} else {
+						events.splice(i, 1);
+						i--;
+					}
+				 	
+				};
+
+				events.sort(function(a, b) {
+				    return parseFloat(a.manDistance) - parseFloat(b.manDistance);
+				});
+
+				printClosestEvents(events);
+			}
+
+			function printClosestEvents(events) {
+				$(".events tr:not(:first-child)").remove();
+				var price = 0;
+				for(i=0;i<5;i++) {
+					//for bigger system would use templating to add the events such as angular or underscore instead.
+			 		if(events[i].tickets.length == 1) {
+			 			price = events[i].tickets[0].price;
+			 		} else {
+			 			price = events[i].tickets[0].price;
+			 			events[i].tickets.forEach(function(ticket) {
+			 				if(price > ticket.price) {
+			 					price = ticket.price;
+			 				}
+			 			});
+			 		}
+					$(".events").append("<tr><td>"+events[i].id+"</td><td>"+events[i].x+","+events[i].y+"</td><td>"+events[i].manDistance+"</td><td>$"+price+"</td></tr>");
+				}
+				$(".events").show();
+			}
+
+			$('.searchForm').on('submit', function(e) {
+		        e.preventDefault();
+		       	findEvents();
+		    });
+		});
+	</script>
+</html>
