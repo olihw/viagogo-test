@@ -1,6 +1,6 @@
 # viagogo-test
 
-Written in Javascript as makes sense considering it is a front-end developer role. Therefore is just a simple HTML file to download and open in browser.
+Written in Javascript as makes sense considering it is a front-end developer role. Therefore is just a simple HTML file to download and open in browser. Enter the x and y coordinates into the input field and click Search.
 
 Assumptions:
 - Seed data is created with between 0 to 2 tickets for each event.
